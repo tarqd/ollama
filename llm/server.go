@@ -525,6 +525,7 @@ type completion struct {
 type CompletionRequest struct {
 	Prompt  string
 	Format  string
+	Grammar string
 	Images  []ImageData
 	Options api.Options
 }
@@ -577,6 +578,9 @@ func (s *LlamaServer) Completion(ctx context.Context, req CompletionRequest, fn 
 		if !strings.Contains(strings.ToLower(req.Prompt), "json") {
 			slog.Warn("Prompt does not specify that the LLM should response in JSON, but JSON format is expected. For best results specify that JSON is expected in the system prompt.")
 		}
+	} else if req.Format == "custom" {
+		request["grammar"] = req.Grammar
+		slog.Warn("Using custom grammar")
 	}
 
 	retryDelay := 100 * time.Microsecond

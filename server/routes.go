@@ -176,8 +176,8 @@ func GenerateHandler(c *gin.Context) {
 	case req.Model == "":
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "model is required"})
 		return
-	case len(req.Format) > 0 && req.Format != "json":
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "format must be json"})
+	case len(req.Format) > 0 && (req.Format != "json" && req.Format != "custom"):
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "format must be json or custom"})
 		return
 	case req.Raw && (req.Template != "" || req.System != "" || len(req.Context) > 0):
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "raw mode does not support template, system, or context"})
@@ -356,6 +356,7 @@ func GenerateHandler(c *gin.Context) {
 		req := llm.CompletionRequest{
 			Prompt:  prompt,
 			Format:  req.Format,
+			Grammar: req.Grammar,
 			Images:  images,
 			Options: opts,
 		}
@@ -1254,8 +1255,8 @@ func ChatHandler(c *gin.Context) {
 	case req.Model == "":
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "model is required"})
 		return
-	case len(req.Format) > 0 && req.Format != "json":
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "format must be json"})
+	case len(req.Format) > 0 && (req.Format != "json" && req.Format != "custom"):
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "format must be json or custom"})
 		return
 	}
 
@@ -1379,6 +1380,7 @@ func ChatHandler(c *gin.Context) {
 		if err := loaded.llama.Completion(c.Request.Context(), llm.CompletionRequest{
 			Prompt:  prompt,
 			Format:  req.Format,
+			Grammar: req.Grammar,
 			Images:  images,
 			Options: opts,
 		}, fn); err != nil {
